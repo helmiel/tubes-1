@@ -76,8 +76,8 @@ func main() {
 
         if i == 1 { // option 1
             fmt.Println(`
-========================
-Daftarkan dirimu sebagai
+==============
+Daftar Sebagai
 1) Pasien
 2) Dokter
             `)
