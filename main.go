@@ -5,10 +5,10 @@ import (
     "fmt"
 )
 
-const ARRAY_MAX__STATIC int = 1024
+const ARRAY_MAX_STATIC int = 1024
 
 type Array[T any] struct {
-    val [ARRAY_MAX__STATIC]T
+    val [ARRAY_MAX_STATIC]T
     len int
 }
 
@@ -27,7 +27,7 @@ func (a Array[T]) Get(idx int) (T, error) {
 }
 
 func (a *Array[T]) Push(v T) error {
-    if a.len >= ARRAY_MAX__STATIC {
+    if a.len >= ARRAY_MAX_STATIC {
         return errors.New("Array cannot hold any more items")
     }
 
@@ -66,30 +66,29 @@ func (a Array[T]) Each(f func(v T, i int)) {
 }
 
 func main() {
-    var orang Orang
     var db Database
+    var loggedOrang Orang
 
     for i := -1; i != 0; {
         Menu()
         fmt.Print("Masukan: ")
         fmt.Scan(&i)
 
-        if i == 1 {
+        if i == 1 { // option 1
             fmt.Println(`
+========================
 Daftarkan dirimu sebagai
 1) Pasien
 2) Dokter
             `)
 
-            var idx int
-
+            var pilihan int
             fmt.Print("Masukan Pilihan: ")
-            fmt.Scan(&idx)
+            fmt.Scan(&pilihan)
 
-            // disarankan tidak pake break -pras
-            if idx >= 1 && idx <= len(ORANG_TIPE) {
-                var nama string
-                var password string
+            if pilihan >= 1 && pilihan <= len(ORANG_TIPE) {
+                var nama, password string
+                var orang Orang
 
                 fmt.Print("Masukan Nama: ")
                 fmt.Scan(&nama)
@@ -97,19 +96,19 @@ Daftarkan dirimu sebagai
                 fmt.Print("Masukan Password: ")
                 fmt.Scan(&password)
 
-                orang.Init(ORANG_TIPE[idx-1], nama, password)
+                orang.Init(ORANG_TIPE[pilihan - 1], nama, password)
                 db.orang.Push(orang)
-                fmt.Println("Berhasil terdaftar")
+                LOG("Berhasil terdaftar", true)
             }
-        } else if i == 2 {
+        } else if i == 2 { // option 2
             fmt.Println(`
+=============
 Login sebagai
 1) Pasien
 2) Dokter
             `)
 
             var pilihan int
-
             fmt.Print("Masukan Pilihan: ")
             fmt.Scan(&pilihan)
 
@@ -122,17 +121,23 @@ Login sebagai
                 fmt.Print("Masukan Password: ")
                 fmt.Scan(&password)
 
-                idx := db.orang.Find(func(v Orang, i int) bool {
-                    return v.tipe == ORANG_TIPE[pilihan-1] && v.nama == nama && v.password == password
+                idx := db.orang.Find(func (v Orang, _ int) bool {
+                    return v.tipe == ORANG_TIPE[pilihan - 1] && v.nama == nama && v.password == password
                 })
 
                 if idx == -1 {
-                    fmt.Println("Gagal login")
+                    LOG("Gagal login", false)
                 } else {
-                    fmt.Println("Berhasil login")
-                    orang = db.orang.val[idx]
+                    LOG("Berhasil login", true)
+                    loggedOrang = db.orang.val[idx]
                 }
             }
+        } else if i == 7 {
+            db.orang.Each(func (v Orang, _ int) {
+                fmt.Println(v)
+            })
+        } else if i == 8 {
+            fmt.Println(loggedOrang)
         }
     }
 }
@@ -176,12 +181,20 @@ type Database struct {
 }
 
 func Menu() {
-    fmt.Println(`
-Konsultasi Kesehatan
+    fmt.Println(`Konsultasi Kesehatan
 --------------------
 1) Daftar
 2) Login
 3) Forum
 0) Keluar
     `)
+}
+
+func LOG(s string, success bool) {
+    var code string = "+"
+    if !success {
+        code = "-"
+    }
+
+    fmt.Printf("\n[%s] %s\n\n", code, s)
 }
