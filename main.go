@@ -39,7 +39,7 @@ func (a *Array[T]) Push(v T) error {
 func (a *Array[T]) Pop() (T, error) {
     var ret T
     if a.len <= 0 {
-   	    return ret, errors.New("Array cannot delete any items")
+        return ret, errors.New("Array cannot delete any items")
     }
 
     ret = a.val[a.len-1]
@@ -51,9 +51,9 @@ func (a Array[T]) Find(f func(v T, i int) bool) int {
     var idx = -1
 
     for i := 0; i < a.len; i++ {
-   	    if f(a.val[i], i) {
-   		    idx = i
-   	    }
+        if f(a.val[i], i) {
+            idx = i
+        }
     }
 
     return idx
@@ -61,7 +61,7 @@ func (a Array[T]) Find(f func(v T, i int) bool) int {
 
 func (a Array[T]) Each(f func(v T, i int)) {
     for i := 0; i < a.len; i++ {
-   	    f(a.val[i], i)
+        f(a.val[i], i)
     }
 }
 
@@ -70,80 +70,71 @@ func main() {
     var db Database
 
     for i := -1; i != 0; {
-   	 Menu()
-   	 fmt.Print("Masukan: ")
-   	 fmt.Scan(&i)
+        Menu()
+        fmt.Print("Masukan: ")
+        fmt.Scan(&i)
 
-   	 if i == 1 {
-   		 fmt.Println(`
+        if i == 1 {
+            fmt.Println(`
 Daftarkan dirimu sebagai
 1) Pasien
 2) Dokter
-   		 `)
+            `)
 
-   		 var idx int
+            var idx int
 
-   		 fmt.Print("Masukan Pilihan: ")
-   		 fmt.Scan(&idx)
+            fmt.Print("Masukan Pilihan: ")
+            fmt.Scan(&idx)
 
-   		 // disarankan tidak pake break -pras
-   		 if idx >= 1 && idx <= len(ORANG_TIPE) {
-   			 var nama string
-   			 var password string
+            // disarankan tidak pake break -pras
+            if idx >= 1 && idx <= len(ORANG_TIPE) {
+                var nama string
+                var password string
 
-   			 fmt.Print("Masukan Nama: ")
-   			 fmt.Scan(&nama)
+                fmt.Print("Masukan Nama: ")
+                fmt.Scan(&nama)
 
-   			 fmt.Print("Masukan Password: ")
-   			 fmt.Scan(&password)
+                fmt.Print("Masukan Password: ")
+                fmt.Scan(&password)
 
-   			 orang.Init(ORANG_TIPE[idx-1], nama, password)
-   			 db.orang.Push(orang)
-   			 fmt.Println("Berhasil terdaftar")
-   		 }
-   	 } else if i == 2 {
-   		 fmt.Println(`
+                orang.Init(ORANG_TIPE[idx-1], nama, password)
+                db.orang.Push(orang)
+                fmt.Println("Berhasil terdaftar")
+            }
+        } else if i == 2 {
+            fmt.Println(`
 Login sebagai
 1) Pasien
 2) Dokter
-   		 `)
+            `)
 
-   		 var pilihan int
+            var pilihan int
 
-   		 fmt.Print("Masukan Pilihan: ")
-   		 fmt.Scan(&pilihan)
+            fmt.Print("Masukan Pilihan: ")
+            fmt.Scan(&pilihan)
 
-   		 if pilihan >= 1 && pilihan <= len(ORANG_TIPE) {
-   			 var nama, password string
+            if pilihan >= 1 && pilihan <= len(ORANG_TIPE) {
+                var nama, password string
 
-   			 fmt.Print("Masukan Nama: ")
-   			 fmt.Scan(&nama)
+                fmt.Print("Masukan Nama: ")
+                fmt.Scan(&nama)
 
-   			 fmt.Print("Masukan Password: ")
-   			 fmt.Scan(&password)
+                fmt.Print("Masukan Password: ")
+                fmt.Scan(&password)
 
-   			 var idx = -1
+                idx := db.orang.Find(func(v Orang, i int) bool {
+                    return v.tipe == ORANG_TIPE[pilihan-1] && v.nama == nama && v.password == password
+                })
 
-   			 for i := 0; i < db.orang.len && idx == -1; i++ {
-   				 if db.orang.val[i].tipe == ORANG_TIPE[pilihan-1] && db.orang.val[i].nama == nama && db.orang.val[i].password == password {
-   					 idx = i
-   				 }
-   			 }
-
-   			 // idx := db.orang.Find(func(v Orang, i int) bool {
-   			 //     return v.tipe == ORANG_TIPE[pilihan-1] && v.nama == nama && v.password == password
-   			 // })
-
-   			 if idx == -1 {
-   				 fmt.Println("Gagal login")
-   			 } else {
-   				 fmt.Println("Berhasil login")
-   				 orang = db.orang.val[idx]
-   			 }
-   		 }
-   	 }
+                if idx == -1 {
+                    fmt.Println("Gagal login")
+                } else {
+                    fmt.Println("Berhasil login")
+                    orang = db.orang.val[idx]
+                }
+            }
+        }
     }
-
 }
 
 var ORANG_TIPE = [2]string{"PASIEN", "DOKTER"}
