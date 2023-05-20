@@ -129,7 +129,7 @@ Login sebagai
                     LOG("Gagal login", false)
                 } else {
                     LOG("Berhasil login", true)
-                    loggedOrang = db.orang.val[idx]
+                    loggedOrang, _ = db.orang.Get(idx)
                 }
             }
         } else if i == 7 {
