@@ -1,200 +1,179 @@
 package main
 
 import (
-    "errors"
-    "fmt"
+	"fmt"
 )
 
-const ARRAY_MAX_STATIC int = 1024
+const ARR_STATIC_MAX int = 1024
 
-type Array[T any] struct {
-    val [ARRAY_MAX_STATIC]T
-    len int
+type Pasien struct {
+	nama, password string
+	umur           int
 }
 
-func (a *Array[T]) Init() {
-    a.len = 0
+type PasienArr struct {
+	info [ARR_STATIC_MAX]Pasien
+	n    int
 }
 
-func (a Array[T]) Get(idx int) (T, error) {
-    var ret T
-    if idx >= a.len || idx < 0 {
-        return ret, errors.New("Array out of bounds")
-    }
-
-    ret = a.val[idx]
-    return ret, nil
+type Dokter struct {
+	nama, password string
+	umur           int
 }
 
-func (a *Array[T]) Push(v T) error {
-    if a.len >= ARRAY_MAX_STATIC {
-        return errors.New("Array cannot hold any more items")
-    }
-
-    a.val[a.len] = v
-    a.len++
-    return nil
-}
-
-func (a *Array[T]) Pop() (T, error) {
-    var ret T
-    if a.len <= 0 {
-        return ret, errors.New("Array cannot delete any items")
-    }
-
-    ret = a.val[a.len-1]
-    a.len--
-    return ret, nil
-}
-
-func (a Array[T]) Find(f func(v T, i int) bool) int {
-    var idx = -1
-
-    for i := 0; i < a.len; i++ {
-        if f(a.val[i], i) {
-            idx = i
-        }
-    }
-
-    return idx
-}
-
-func (a Array[T]) Each(f func(v T, i int)) {
-    for i := 0; i < a.len; i++ {
-        f(a.val[i], i)
-    }
-}
-
-func main() {
-    var db Database
-    var loggedOrang Orang
-
-    for i := -1; i != 0; {
-        Menu()
-        fmt.Print("Masukan: ")
-        fmt.Scan(&i)
-
-        if i == 1 { // option 1
-            fmt.Println(`
-==============
-Daftar Sebagai
-1) Pasien
-2) Dokter
-            `)
-
-            var pilihan int
-            fmt.Print("Masukan Pilihan: ")
-            fmt.Scan(&pilihan)
-
-            if pilihan >= 1 && pilihan <= len(ORANG_TIPE) {
-                var nama, password string
-                var orang Orang
-
-                fmt.Print("Masukan Nama: ")
-                fmt.Scan(&nama)
-
-                fmt.Print("Masukan Password: ")
-                fmt.Scan(&password)
-
-                orang.Init(ORANG_TIPE[pilihan - 1], nama, password)
-                db.orang.Push(orang)
-                LOG("Berhasil terdaftar", true)
-            }
-        } else if i == 2 { // option 2
-            fmt.Println(`
-=============
-Login sebagai
-1) Pasien
-2) Dokter
-            `)
-
-            var pilihan int
-            fmt.Print("Masukan Pilihan: ")
-            fmt.Scan(&pilihan)
-
-            if pilihan >= 1 && pilihan <= len(ORANG_TIPE) {
-                var nama, password string
-
-                fmt.Print("Masukan Nama: ")
-                fmt.Scan(&nama)
-
-                fmt.Print("Masukan Password: ")
-                fmt.Scan(&password)
-
-                idx := db.orang.Find(func (v Orang, _ int) bool {
-                    return v.tipe == ORANG_TIPE[pilihan - 1] && v.nama == nama && v.password == password
-                })
-
-                if idx == -1 {
-                    LOG("Gagal login", false)
-                } else {
-                    LOG("Berhasil login", true)
-                    loggedOrang, _ = db.orang.Get(idx)
-                }
-            }
-        } else if i == 7 {
-            db.orang.Each(func (v Orang, _ int) {
-                fmt.Println(v)
-            })
-        } else if i == 8 {
-            fmt.Println(loggedOrang)
-        }
-    }
-}
-
-var ORANG_TIPE = [2]string{"PASIEN", "DOKTER"}
-
-type Orang struct {
-    tipe, nama, password string
-}
-
-func (o *Orang) Init(tipe, nama, password string) {
-    o.nama = nama
-    o.tipe = tipe
-    o.password = password
-}
-
-type Pertanyaan struct {
-    judul   string
-    topik   Array[string]
-    balasan Array[Balasan]
-}
-
-func (p *Pertanyaan) Init(judul string, topik Array[string]) {
-    p.judul = judul
-    p.topik = topik
-}
-
-type Balasan struct {
-    orang Orang
-    isi   string
-}
-
-func (b *Balasan) Init(o Orang, isi string) {
-    b.orang = o
-    b.isi = isi
-}
-
-type Database struct {
-    orang Array[Orang]
-    forum Array[Pertanyaan]
+type DokterArr struct {
+	info [ARR_STATIC_MAX]Dokter
+	n    int
 }
 
 func Menu() {
-    fmt.Println(`Konsultasi Kesehatan
+	fmt.Println(`
+Konsultasi Kesehatan
 --------------------
-1) Daftar
-2) Login
-3) Forum
-0) Keluar
+1. Daftar
+2. Login
+3. Forum
+0. Keluar
     `)
 }
 
-func LOG(s string, success bool) {
-    var code string = "+"
-    if !success {
-        code = "-"
-    }
+/* Pasien F() +
+ */
+func PasienFind(arr PasienArr, x Pasien) int {
+	var idx int = -1
+	for i := 0; i < arr.n && idx == -1; i++ {
+		if x.nama == arr.info[i].nama && x.password == arr.info[i].password {
+			idx = i
+		}
+	}
+	return idx
+}
 
-    fmt.Printf("\n[%s] %s\n\n", code, s)
+func PasienDaftar(arr *PasienArr) {
+	var pasien Pasien
+	var hasil int
+
+	fmt.Print("Masukkan Nama: ")
+	fmt.Scan(&pasien.nama)
+
+	fmt.Print("Masukkan Password: ")
+	fmt.Scan(&pasien.password)
+
+	fmt.Print("Masukkan Umur: ")
+	fmt.Scan(&pasien.umur)
+
+	hasil = PasienFind(*arr, pasien)
+	if hasil == -1 {
+		if arr.n < ARR_STATIC_MAX {
+			arr.info[arr.n] = pasien
+			arr.n++
+
+			fmt.Println("[info]: Pengguna terdaftar")
+		} else {
+			fmt.Println("[info]: Pengguna gagal terdaftar")
+		}
+	} else {
+		fmt.Println("[info]: Pengguna sudah terdaftar")
+	}
+}
+
+func PasienSort(arr []Pasien, n int) {
+	for i := 1; i < n; i++ {
+		key := arr[i]
+		j := i - 1
+
+		for j > 0 && arr[j].umur > key.umur {
+			arr[j] = arr[j-1]
+			j--
+		}
+		arr[j] = key
+	}
+}
+
+/* Pasien F() -
+ */
+
+/* Dokter F() +
+ */
+func DokterFind(arr DokterArr, x Dokter) int {
+	var idx int = -1
+	for i := 0; i < arr.n && idx == -1; i++ {
+		if x.nama == arr.info[i].nama && x.password == arr.info[i].password {
+			idx = i
+		}
+	}
+	return idx
+}
+
+func DokterPush(arr *DokterArr, x Dokter) {
+	if arr.n < ARR_STATIC_MAX {
+		arr.info[arr.n] = x
+		arr.n++
+	} else {
+		fmt.Println("[info]: Gagal menambahkan Dokter")
+	}
+}
+
+/* Dokter F() -
+ */
+
+func Login() {
+	var pilihan int
+
+	fmt.Println("\nLogin sebagai")
+	fmt.Println("=============")
+	fmt.Println("1. Pasien \t 2. Dokter")
+
+	fmt.Print("Masukan Pilihan: ")
+	fmt.Scan(&pilihan)
+
+	if pilihan >= 1 && pilihan <= 2 {
+		var nama, password string
+
+		fmt.Print("Masukan Nama: ")
+		fmt.Scan(&nama)
+
+		fmt.Print("Masukan Password: ")
+		fmt.Scan(&password)
+
+		if pilihan == 1 {
+			idx := PasienFind(db.pasien, Pasien{nama: nama, password: password})
+			if idx > -1 {
+				fmt.Println("[info]: Selamat datang pasien", nama)
+			} else {
+				fmt.Println("[info]: Login gagal")
+			}
+		} else if pilihan == 2 {
+			idx := DokterFind(db.dokter, Dokter{nama: nama, password: password})
+			if idx > -1 {
+				fmt.Println("[info]: Selamat datang dokter", nama)
+			} else {
+				fmt.Println("[info]: Login gagal")
+			}
+		}
+	}
+}
+
+var db Database
+
+func main() {
+	DokterPush(&db.dokter, Dokter{nama: "Helmi", password: "admin"})
+	DokterPush(&db.dokter, Dokter{nama: "Fattan", password: "admin"})
+
+	for i := -1; i != 0; {
+		Menu()
+		fmt.Print("Masukkan: ")
+		fmt.Scan(&i)
+
+		if i == 1 {
+			PasienDaftar(&db.pasien)
+		} else if i == 2 {
+			Login()
+		}
+	}
+}
+
+type Database struct {
+	pasien PasienArr
+	dokter DokterArr
 }
