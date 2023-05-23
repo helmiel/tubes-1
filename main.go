@@ -112,22 +112,6 @@ func PasienDaftar(arr *PasienArr) {
 	}
 }
 
-func PasienSort(arr []Pasien, n int) {
-	for i := 1; i < n; i++ {
-		key := arr[i]
-		j := i - 1
-
-		for j > 0 && arr[j].umur > key.umur {
-			arr[j] = arr[j-1]
-			j--
-		}
-		arr[i] = key
-	}
-}
-
-/* Pasien F() -
- */
-
 /* Dokter F() +
  */
 func DokterFind(arr DokterArr, x Dokter) int {
@@ -149,9 +133,6 @@ func DokterPush(arr *DokterArr, x Dokter) {
 	}
 }
 
-/* Dokter F() -
- */
-
 /* Forum F() +
  */
 
@@ -166,17 +147,17 @@ func ForumPush(f *Forum, p Pertanyaan) {
 
 func ForumPrint(f Forum) {
 	for i := 0; i < f.pertanyaan.n; i++ {
-		fmt.Print(i + 1)
-		fmt.Print(" Judul:\n", f.pertanyaan.info[i].judul, "\n")
+		fmt.Print("[", i+1, "] Judul:\n", f.pertanyaan.info[i].judul, "\n")
 
 		fmt.Println("Diskusi:")
 		for j := 0; j < f.pertanyaan.info[i].replies.n; j++ {
 			fmt.Print("[", f.pertanyaan.info[i].replies.info[j].nama, "(", f.pertanyaan.info[i].replies.info[j].tipe, ")]: ", f.pertanyaan.info[i].replies.info[j].message, "\n")
 		}
+		fmt.Println("=====================")
 	}
 }
 
-/* Forum F() -
+/* Pertanyaan F() +
  */
 
 func PertanyaanSort__(f *Forum) {
