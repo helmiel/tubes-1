@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 const ARR_STATIC_MAX int = 1024
@@ -151,7 +152,7 @@ func ForumPrint(f Forum) {
 
 		fmt.Println("Diskusi:")
 		for j := 0; j < f.pertanyaan.info[i].replies.n; j++ {
-			fmt.Print("[", f.pertanyaan.info[i].replies.info[j].nama, "(", f.pertanyaan.info[i].replies.info[j].tipe, ")]: ", f.pertanyaan.info[i].replies.info[j].message, "\n")
+			fmt.Print("[", f.pertanyaan.info[i].replies.info[j].nama, "(", StringCapitalize(f.pertanyaan.info[i].replies.info[j].tipe), ")]: ", f.pertanyaan.info[i].replies.info[j].message, "\n")
 		}
 		fmt.Println("=====================")
 	}
@@ -177,11 +178,8 @@ func PertanyaanSortAsc(p *PertanyaanArr) {
 func PertanyaanSortDesc(p *PertanyaanArr) {
 	for i := 1; i < p.n; i++ {
 		key := p.info[i]
-		j := i - 1
-
-		for j > 0 && p.info[j].replies.n > key.replies.n {
+		for j := i - 1; j > 0 && p.info[j].replies.n > key.replies.n; j-- {
 			p.info[j] = p.info[j-1]
-			j--
 		}
 		p.info[i] = key
 	}
@@ -192,16 +190,21 @@ func Daftar() {
 }
 
 func Login() {
+	fmt.Println(`
+Login sebagai
+-------------
+1. Pasien
+2. Dokter
+0. Batalkan
+	`)
+
 	var pilihan int
+	for pilihan = -1; !(pilihan >= 1 && pilihan <= 2) && pilihan != 0; {
+		fmt.Print("Masukan Pilihan: ")
+		fmt.Scanln(&pilihan)
+	}
 
-	fmt.Println("\nLogin sebagai")
-	fmt.Println("=============")
-	fmt.Println("1. Pasien \t 2. Dokter")
-
-	fmt.Print("Masukan Pilihan: ")
-	fmt.Scanln(&pilihan)
-
-	if pilihan >= 1 && pilihan <= 2 {
+	if pilihan != 0 {
 		var nama, password string
 
 		fmt.Print("Masukan Nama: ")
@@ -233,37 +236,32 @@ func Login() {
 }
 
 func Forum__() {
-	var pilihan int
-
 	var loggedAsDokter bool = db.user.tipe == "DOKTER"
 	var loggedAsPasien bool = db.user.tipe == "PASIEN"
+	var pilihan_max = 3
 
-	fmt.Println("\nForum")
-	fmt.Println("=====")
-	fmt.Println("1. Lihat \t 2. Tambah \t 3. Reply ")
+	fmt.Println(`
+Forum
+-----
+1. Lihat
+2. Tambah
+3. Balas`)
 
-	fmt.Print("Masukan Pilihan: ")
-	fmt.Scanln(&pilihan)
+	if loggedAsDokter {
+		pilihan_max++
+		fmt.Println("4. Tools <@sp-dokter>")
+	}
+	fmt.Println("0. Batalkan")
+	fmt.Print("\n")
 
-	if pilihan >= 1 && pilihan <= 3 {
+	var pilihan int
+	for pilihan = -1; !(pilihan >= 1 && pilihan <= pilihan_max) && pilihan != 0; {
+		fmt.Print("Masukan Pilihan: ")
+		fmt.Scanln(&pilihan)
+	}
+
+	if pilihan != 0 {
 		if pilihan == 1 {
-			if loggedAsDokter {
-				// + TOOLS
-				var choose string = "N"
-				fmt.Print("Urutkan pertanyaan atau tidak? (Y/N): ")
-				fmt.Scanln(&choose)
-				if choose == "y" || choose == "Y" {
-					fmt.Print("Mengurutkan pertanyaan berdasarkan jumlah reply secara \n 1.Ascending \t 2. Descending \n")
-					var input int
-					fmt.Print("Masukkan pilihan: ")
-					fmt.Scanln(&input)
-					if input == 1 {
-						PertanyaanSortAsc(&db.forum.pertanyaan)
-					} else if input == 2 {
-						PertanyaanSortDesc(&db.forum.pertanyaan)
-					}
-				}
-			}
 			ForumPrint(db.forum)
 		} else if pilihan == 2 {
 			if loggedAsPasien {
@@ -279,20 +277,13 @@ func Forum__() {
 			var i int
 			if loggedAsPasien || loggedAsDokter {
 				ForumPrint(db.forum)
-				fmt.Print("Masukkan forum ke: ")
+				fmt.Print("Masukkan balasan pada forum ke: ")
 				fmt.Scanln(&i)
-				if i > 0 || i <= db.forum.pertanyaan.n {
-					if loggedAsPasien {
-						fmt.Println("Masukkan balasan anda: ")
-						ScanString(&reply.message)
-						reply.nama = db.user.pasien.nama
-						reply.tipe = "Pasien"
-					} else if loggedAsDokter {
-						fmt.Println("Masukkan balasan anda: ")
-						ScanString(&reply.message)
-						reply.nama = db.user.dokter.nama
-						reply.tipe = "Dokter"
-					}
+				if i > 0 && i <= db.forum.pertanyaan.n {
+					fmt.Print("Masukkan balasan anda: ")
+					ScanString(&reply.message)
+					reply.nama = db.user.pasien.nama
+					reply.tipe = db.user.tipe
 					ReplyPush(&db.forum.pertanyaan.info[i-1].replies, reply)
 				} else {
 					fmt.Print("[info]: Pertanyaan tidak ditemukan")
@@ -300,7 +291,43 @@ func Forum__() {
 			} else {
 				fmt.Print("[info]: Harap login terlebih dahulu")
 			}
+		} else if pilihan == 4 {
+			if loggedAsDokter {
+				// + TOOLS
+				var input int
+				fmt.Println(`
+Tools Dokter
+------------
+1. Urut / Sort pertanyaan
+0. Batalkan
+				`)
 
+				for input = -1; !(input >= 1 && input <= 1) && input != 0; {
+					fmt.Print("Masukkan pilihan: ")
+					fmt.Scanln(&input)
+				}
+
+				if input != 0 {
+					fmt.Println(`
+Urut secara
+-----------
+1. Ascending
+2. Descending
+0. Batalkan
+					`)
+
+					for input = -1; !(input >= 1 && input <= 2) && input != 0; {
+						fmt.Print("Masukkan pilihan: ")
+						fmt.Scanln(&input)
+					}
+
+					if input == 1 {
+						PertanyaanSortAsc(&db.forum.pertanyaan)
+					} else if input == 2 {
+						PertanyaanSortDesc(&db.forum.pertanyaan)
+					}
+				}
+			}
 		}
 	}
 }
@@ -358,12 +385,12 @@ func main() {
 	db.user.pasien = &db.pasien.info[PasienFind(db.pasien, Pasien{nama: "nala", password: "nala", umur: 19})]
 
 	ForumPush(&db.forum, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu lambung"})
-	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "nala", message: "xxx", tipe: "Pasien"})
-	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "aku", message: "xxx", tipe: "Pasien"})
-	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "dia", message: "xxx", tipe: "Pasien"})
+	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "nala", message: "xxx", tipe: "PASIEN"})
+	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "aku", message: "xxx", tipe: "PASIEN"})
+	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "dia", message: "xxx", tipe: "PASIEN"})
 
 	ForumPush(&db.forum, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu kucing"})
-	ReplyPush(&db.forum.pertanyaan.info[1].replies, Reply{nama: "joko", message: "xxx", tipe: "Pasien"})
+	ReplyPush(&db.forum.pertanyaan.info[1].replies, Reply{nama: "joko", message: "xxx", tipe: "PASIEN"})
 
 	for i := -1; i != 0; {
 		Menu()
@@ -403,6 +430,10 @@ func ScanString(buf *string) {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	*buf = scanner.Text()
+}
+
+func StringCapitalize(str string) string {
+	return strings.Title(strings.ToLower(str))
 }
 
 func Logout() {
