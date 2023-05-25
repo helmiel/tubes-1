@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 )
 
 const ARR_STATIC_MAX int = 1024
@@ -94,13 +96,13 @@ func PasienDaftar(arr *PasienArr) {
 	var hasil int
 
 	fmt.Print("Masukkan Nama: ")
-	fmt.Scan(&pasien.nama)
+	fmt.Scanln(&pasien.nama)
 
 	fmt.Print("Masukkan Password: ")
-	fmt.Scan(&pasien.password)
+	fmt.Scanln(&pasien.password)
 
 	fmt.Print("Masukkan Umur: ")
-	fmt.Scan(&pasien.umur)
+	fmt.Scanln(&pasien.umur)
 
 	hasil = PasienFind(*arr, pasien)
 	if hasil == -1 {
@@ -197,16 +199,16 @@ func Login() {
 	fmt.Println("1. Pasien \t 2. Dokter")
 
 	fmt.Print("Masukan Pilihan: ")
-	fmt.Scan(&pilihan)
+	fmt.Scanln(&pilihan)
 
 	if pilihan >= 1 && pilihan <= 2 {
 		var nama, password string
 
 		fmt.Print("Masukan Nama: ")
-		fmt.Scan(&nama)
+		fmt.Scanln(&nama)
 
 		fmt.Print("Masukan Password: ")
-		fmt.Scan(&password)
+		fmt.Scanln(&password)
 
 		if pilihan == 1 {
 			idx := PasienFind(db.pasien, Pasien{nama: nama, password: password})
@@ -234,14 +236,14 @@ func Forum__() {
 	var pilihan int
 
 	var loggedAsDokter bool = db.user.tipe == "DOKTER"
-	var loggedAsPasien bool = db.user.tipe == "DOKTER"
+	var loggedAsPasien bool = db.user.tipe == "PASIEN"
 
 	fmt.Println("\nForum")
 	fmt.Println("=====")
 	fmt.Println("1. Lihat \t 2. Tambah \t 3. Reply ")
 
 	fmt.Print("Masukan Pilihan: ")
-	fmt.Scan(&pilihan)
+	fmt.Scanln(&pilihan)
 
 	if pilihan >= 1 && pilihan <= 3 {
 		if pilihan == 1 {
@@ -249,12 +251,12 @@ func Forum__() {
 				// + TOOLS
 				var choose string = "N"
 				fmt.Print("Urutkan pertanyaan atau tidak? (Y/N): ")
-				fmt.Scan(&choose)
+				fmt.Scanln(&choose)
 				if choose == "y" || choose == "Y" {
 					fmt.Print("Mengurutkan pertanyaan berdasarkan jumlah reply secara \n 1.Ascending \t 2. Descending \n")
 					var input int
 					fmt.Print("Masukkan pilihan: ")
-					fmt.Scan(&input)
+					fmt.Scanln(&input)
 					if input == 1 {
 						PertanyaanSortAsc(&db.forum.pertanyaan)
 					} else if input == 2 {
@@ -266,8 +268,8 @@ func Forum__() {
 		} else if pilihan == 2 {
 			if loggedAsPasien {
 				var pertanyaan string
-				fmt.Print("Masukan pertanyaan [masukan \"STOP\" diakhir judul untuk stop]: ")
-				ScanString(&pertanyaan, "STOP")
+				fmt.Print("Masukan pertanyaan: ")
+				ScanString(&pertanyaan)
 				ForumPush(&db.forum, Pertanyaan{pasien: *db.user.pasien, judul: pertanyaan})
 			} else {
 				fmt.Println("[info]: Harap login sebagai pasien terlebih dahulu")
@@ -277,17 +279,17 @@ func Forum__() {
 			var i int
 			if loggedAsPasien || loggedAsDokter {
 				ForumPrint(db.forum)
-				fmt.Print("Masukkan forum ke-")
-				fmt.Scan(&i)
+				fmt.Print("Masukkan forum ke: ")
+				fmt.Scanln(&i)
 				if i > 0 || i <= db.forum.pertanyaan.n {
 					if loggedAsPasien {
-						fmt.Print("Masukkan balasan anda [masukan \"STOP\" diakhir judul untuk stop]: ")
-						ScanString(&reply.message, "STOP")
+						fmt.Println("Masukkan balasan anda: ")
+						ScanString(&reply.message)
 						reply.nama = db.user.pasien.nama
 						reply.tipe = "Pasien"
 					} else if loggedAsDokter {
-						fmt.Print("Masukkan balasan anda [masukan \"STOP\" diakhir judul untuk stop]: ")
-						ScanString(&reply.message, "STOP")
+						fmt.Println("Masukkan balasan anda: ")
+						ScanString(&reply.message)
 						reply.nama = db.user.dokter.nama
 						reply.tipe = "Dokter"
 					}
@@ -322,6 +324,27 @@ func ReplyPush(r *ReplyArr, x Reply) {
 	}
 }
 
+func TopikPush(t *TopikArr, x string) {
+	if t.n < ARR_STATIC_MAX {
+		t.info[t.n] = x
+		t.n++
+	} else {
+		fmt.Println("[info]: Gagal menambahkan Topik")
+	}
+}
+
+func TopikSort(t *TopikArr) {
+	for i := 0; i < t.n; i++ {
+		for j := i + 1; j < t.n; j++ {
+			if t.info[j][0] < t.info[i][0] {
+				tmp := t.info[i]
+				t.info[i] = t.info[j]
+				t.info[j] = tmp
+			}
+		}
+	}
+}
+
 var db Database
 
 func main() {
@@ -342,13 +365,10 @@ func main() {
 	ForumPush(&db.forum, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu kucing"})
 	ReplyPush(&db.forum.pertanyaan.info[1].replies, Reply{nama: "joko", message: "xxx", tipe: "Pasien"})
 
-	// var t TopikArr
-	// TopikPush()
-
 	for i := -1; i != 0; {
 		Menu()
 		fmt.Print("Masukkan: ")
-		fmt.Scan(&i)
+		fmt.Scanln(&i)
 
 		if i == 1 {
 			Daftar()
@@ -379,13 +399,10 @@ type User struct {
 	dokter *Dokter
 }
 
-func ScanString(buf *string, stop string) {
-	var str string
-	fmt.Scan(&str)
-	for str != stop {
-		*buf += (str + " ")
-		fmt.Scan(&str)
-	}
+func ScanString(buf *string) {
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	*buf = scanner.Text()
 }
 
 func Logout() {
