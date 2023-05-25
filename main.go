@@ -37,10 +37,8 @@ type Pertanyaan struct {
 	replies ReplyArr
 }
 
-type Topik string
-
 type TopikArr struct {
-	info [ARR_STATIC_MAX]Topik
+	info [ARR_STATIC_MAX]string
 	n    int
 }
 
@@ -159,44 +157,31 @@ func ForumPrint(f Forum) {
 
 /* Pertanyaan F() +
  */
-
-func PertanyaanSort__(f *Forum) {
-	for i := 0; i < f.pertanyaan.n; i++ {
-		for j := i + 1; j < f.pertanyaan.n; j++ {
-			if f.pertanyaan.info[j].replies.n < f.pertanyaan.info[i].replies.n {
-				tmp := f.pertanyaan.info[i]
-				f.pertanyaan.info[i] = f.pertanyaan.info[j]
-				f.pertanyaan.info[j] = tmp
-			}
-		}
-	}
-}
-
-func PertanyaanSortAsc(f *Forum) {
+func PertanyaanSortAsc(p *PertanyaanArr) {
 	var i, j, min_idx int
-	for i = 0; i < f.pertanyaan.n-1; i++ {
+	for i = 0; i < p.n-1; i++ {
 		min_idx = i
-		for j = i + 1; j < f.pertanyaan.n; j++ {
-			if f.pertanyaan.info[j].replies.n < f.pertanyaan.info[min_idx].replies.n {
+		for j = i + 1; j < p.n; j++ {
+			if p.info[j].replies.n < p.info[min_idx].replies.n {
 				min_idx = j
 			}
 		}
-		var temp = f.pertanyaan.info[i]
-		f.pertanyaan.info[i] = f.pertanyaan.info[min_idx]
-		f.pertanyaan.info[min_idx] = temp
+		var temp = p.info[i]
+		p.info[i] = p.info[min_idx]
+		p.info[min_idx] = temp
 	}
 }
 
-func PertanyaanSortDesc(f *Forum) {
-	for i := 1; i < f.pertanyaan.n; i++ {
-		key := f.pertanyaan.info[i]
+func PertanyaanSortDesc(p *PertanyaanArr) {
+	for i := 1; i < p.n; i++ {
+		key := p.info[i]
 		j := i - 1
 
-		for j > 0 && f.pertanyaan.info[j].replies.n > key.replies.n {
-			f.pertanyaan.info[j] = f.pertanyaan.info[j-1]
+		for j > 0 && p.info[j].replies.n > key.replies.n {
+			p.info[j] = p.info[j-1]
 			j--
 		}
-		f.pertanyaan.info[i] = key
+		p.info[i] = key
 	}
 }
 
@@ -248,6 +233,9 @@ func Login() {
 func Forum__() {
 	var pilihan int
 
+	var loggedAsDokter bool = db.user.tipe == "DOKTER"
+	var loggedAsPasien bool = db.user.tipe == "DOKTER"
+
 	fmt.Println("\nForum")
 	fmt.Println("=====")
 	fmt.Println("1. Lihat \t 2. Tambah \t 3. Reply ")
@@ -257,25 +245,26 @@ func Forum__() {
 
 	if pilihan >= 1 && pilihan <= 3 {
 		if pilihan == 1 {
-			if db.user.tipe == "DOKTER" {
+			if loggedAsDokter {
+				// + TOOLS
 				var choose string = "N"
 				fmt.Print("Urutkan pertanyaan atau tidak? (Y/N): ")
 				fmt.Scan(&choose)
 				if choose == "y" || choose == "Y" {
-					fmt.Print("Mengurutkan pertanyaan berdasarkan jumlah reply secara \n 1.Descending \t 2. Ascending \n")
+					fmt.Print("Mengurutkan pertanyaan berdasarkan jumlah reply secara \n 1.Ascending \t 2. Descending \n")
 					var input int
 					fmt.Print("Masukkan pilihan: ")
 					fmt.Scan(&input)
 					if input == 1 {
-						PertanyaanSortDesc(&db.forum)
+						PertanyaanSortAsc(&db.forum.pertanyaan)
 					} else if input == 2 {
-						PertanyaanSortAsc(&db.forum)
+						PertanyaanSortDesc(&db.forum.pertanyaan)
 					}
 				}
 			}
 			ForumPrint(db.forum)
 		} else if pilihan == 2 {
-			if db.user.tipe == "PASIEN" {
+			if loggedAsPasien {
 				var pertanyaan string
 				fmt.Print("Masukan pertanyaan [masukan \"STOP\" diakhir judul untuk stop]: ")
 				ScanString(&pertanyaan, "STOP")
@@ -286,23 +275,23 @@ func Forum__() {
 		} else if pilihan == 3 {
 			var reply Reply
 			var i int
-			if db.user.tipe == "PASIEN" || db.user.tipe == "DOKTER" {
+			if loggedAsPasien || loggedAsDokter {
 				ForumPrint(db.forum)
 				fmt.Print("Masukkan forum ke-")
 				fmt.Scan(&i)
 				if i > 0 || i <= db.forum.pertanyaan.n {
-					if db.user.tipe == "PASIEN" {
-						fmt.Print("Masukkan balasan anda: ")
+					if loggedAsPasien {
+						fmt.Print("Masukkan balasan anda [masukan \"STOP\" diakhir judul untuk stop]: ")
 						ScanString(&reply.message, "STOP")
 						reply.nama = db.user.pasien.nama
 						reply.tipe = "Pasien"
-					} else if db.user.tipe == "DOKTER" {
-						fmt.Print("Masukkan balasan anda: ")
+					} else if loggedAsDokter {
+						fmt.Print("Masukkan balasan anda [masukan \"STOP\" diakhir judul untuk stop]: ")
 						ScanString(&reply.message, "STOP")
 						reply.nama = db.user.dokter.nama
 						reply.tipe = "Dokter"
 					}
-					ReplyPush(&db.forum, i-1, reply)
+					ReplyPush(&db.forum.pertanyaan.info[i-1].replies, reply)
 				} else {
 					fmt.Print("[info]: Pertanyaan tidak ditemukan")
 				}
@@ -324,10 +313,10 @@ func printLogin() {
 
 // Relpy +
 
-func ReplyPush(p *Forum, i int, x Reply) {
-	if p.pertanyaan.info[i].replies.n < ARR_STATIC_MAX {
-		p.pertanyaan.info[i].replies.info[p.pertanyaan.info[i].replies.n] = x
-		p.pertanyaan.info[i].replies.n++
+func ReplyPush(r *ReplyArr, x Reply) {
+	if r.n < ARR_STATIC_MAX {
+		r.info[r.n] = x
+		r.n++
 	} else {
 		fmt.Println("[info]: Gagal menambahkan Balasan")
 	}
@@ -346,14 +335,15 @@ func main() {
 	db.user.pasien = &db.pasien.info[PasienFind(db.pasien, Pasien{nama: "nala", password: "nala", umur: 19})]
 
 	ForumPush(&db.forum, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu lambung"})
-	ReplyPush(&db.forum, 0, Reply{nama: "nala", message: "xxx", tipe: "Pasien"})
-	ReplyPush(&db.forum, 0, Reply{nama: "aku", message: "xxx", tipe: "Pasien"})
-	ReplyPush(&db.forum, 0, Reply{nama: "dia", message: "xxx", tipe: "Pasien"})
+	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "nala", message: "xxx", tipe: "Pasien"})
+	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "aku", message: "xxx", tipe: "Pasien"})
+	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "dia", message: "xxx", tipe: "Pasien"})
 
 	ForumPush(&db.forum, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu kucing"})
-	ReplyPush(&db.forum, 1, Reply{nama: "joko", message: "xxx", tipe: "Pasien"})
+	ReplyPush(&db.forum.pertanyaan.info[1].replies, Reply{nama: "joko", message: "xxx", tipe: "Pasien"})
 
-	PertanyaanSortDesc(&db.forum)
+	// var t TopikArr
+	// TopikPush()
 
 	for i := -1; i != 0; {
 		Menu()
