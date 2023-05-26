@@ -137,15 +137,6 @@ func DokterPush(arr *DokterArr, x Dokter) {
 /* Forum F() +
  */
 
-func ForumPush(f *Forum, p Pertanyaan) {
-	if f.pertanyaan.n < ARR_STATIC_MAX {
-		f.pertanyaan.info[f.pertanyaan.n] = p
-		f.pertanyaan.n++
-	} else {
-		fmt.Println("[info]: Gagal menambahkan Forum")
-	}
-}
-
 func ForumPrint(f Forum) {
 	for i := 0; i < f.pertanyaan.n; i++ {
 		fmt.Print("[", i+1, "] Judul:\n", f.pertanyaan.info[i].judul, "\n")
@@ -160,6 +151,16 @@ func ForumPrint(f Forum) {
 
 /* Pertanyaan F() +
  */
+
+func PertanyaanPush(p *PertanyaanArr, x Pertanyaan) {
+	if p.n < ARR_STATIC_MAX {
+		p.info[p.n] = x
+		p.n++
+	} else {
+		fmt.Println("[info]: Gagal menambahkan Pertanyaan")
+	}
+}
+
 func PertanyaanSortAsc(p *PertanyaanArr) {
 	var i, j, min_idx int
 	for i = 0; i < p.n-1; i++ {
@@ -178,10 +179,11 @@ func PertanyaanSortAsc(p *PertanyaanArr) {
 func PertanyaanSortDesc(p *PertanyaanArr) {
 	for i := 1; i < p.n; i++ {
 		key := p.info[i]
-		for j := i - 1; j > 0 && p.info[j].replies.n > key.replies.n; j-- {
+		j := i - 1
+		for ; j > 0 && p.info[j].replies.n > key.replies.n; j-- {
 			p.info[j] = p.info[j-1]
 		}
-		p.info[i] = key
+		p.info[j-1] = key
 	}
 }
 
@@ -268,7 +270,7 @@ Forum
 				var pertanyaan string
 				fmt.Print("Masukan pertanyaan: ")
 				ScanString(&pertanyaan)
-				ForumPush(&db.forum, Pertanyaan{pasien: *db.user.pasien, judul: pertanyaan})
+				PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: pertanyaan})
 			} else {
 				fmt.Println("[info]: Harap login sebagai pasien terlebih dahulu")
 			}
@@ -384,12 +386,12 @@ func main() {
 	db.user.tipe = USER_TIPE[0]
 	db.user.pasien = &db.pasien.info[PasienFind(db.pasien, Pasien{nama: "nala", password: "nala", umur: 19})]
 
-	ForumPush(&db.forum, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu lambung"})
+	PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu lambung"})
 	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "nala", message: "xxx", tipe: "PASIEN"})
 	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "aku", message: "xxx", tipe: "PASIEN"})
 	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "dia", message: "xxx", tipe: "PASIEN"})
 
-	ForumPush(&db.forum, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu kucing"})
+	PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu kucing"})
 	ReplyPush(&db.forum.pertanyaan.info[1].replies, Reply{nama: "joko", message: "xxx", tipe: "PASIEN"})
 
 	for i := -1; i != 0; {
