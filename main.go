@@ -9,9 +9,15 @@ import (
 
 const ARR_STATIC_MAX int = 1024
 
+type ArrInt struct {
+	info [ARR_STATIC_MAX]int
+	n    int
+}
+
 type Pasien struct {
 	nama, password string
 	umur           int
+	NOKTP          string
 }
 
 type PasienArr struct {
@@ -34,17 +40,10 @@ type Forum struct {
 }
 
 type Pertanyaan struct {
-	pasien  Pasien
-	judul   string
-	topik   TopikArr
-	replies ReplyArr
+	judul, topik string
+	pasien       Pasien
+	replies      ReplyArr
 }
-
-type TopikArr struct {
-	info [ARR_STATIC_MAX]string
-	n    int
-}
-
 type PertanyaanArr struct {
 	info [ARR_STATIC_MAX]Pertanyaan
 	n    int
@@ -68,7 +67,7 @@ Konsultasi Kesehatan
 3. Logout
 4. Forum
 0. Keluar
-   `)
+`)
 }
 
 /* Pasien F() +
@@ -105,6 +104,9 @@ func PasienDaftar(arr *PasienArr) {
 	fmt.Print("Masukkan Umur: ")
 	fmt.Scanln(&pasien.umur)
 
+	fmt.Print("Masukkan NOKTP: ")
+	fmt.Scanln(&pasien.NOKTP)
+
 	hasil = PasienFind(*arr, pasien)
 	if hasil == -1 {
 		PasienPush(arr, pasien)
@@ -139,13 +141,8 @@ func DokterPush(arr *DokterArr, x Dokter) {
 
 func ForumPrint(f Forum) {
 	for i := 0; i < f.pertanyaan.n; i++ {
-		fmt.Print("[", i+1, "] Judul:\n", f.pertanyaan.info[i].judul, "\n")
-
-		fmt.Println("Diskusi:")
-		for j := 0; j < f.pertanyaan.info[i].replies.n; j++ {
-			fmt.Print("[", f.pertanyaan.info[i].replies.info[j].nama, "(", StringCapitalize(f.pertanyaan.info[i].replies.info[j].tipe), ")]: ", f.pertanyaan.info[i].replies.info[j].message, "\n")
-		}
-		fmt.Println("=====================")
+		fmt.Print("[", i+1, "]")
+		PertanyaanPrint(f.pertanyaan.info[i])
 	}
 }
 
@@ -183,8 +180,81 @@ func PertanyaanSortDesc(p *PertanyaanArr) {
 		for ; j > 0 && p.info[j].replies.n > key.replies.n; j-- {
 			p.info[j] = p.info[j-1]
 		}
-		p.info[j-1] = key
+		p.info[j+1] = key
 	}
+}
+
+func PertanyaanPrint(p Pertanyaan) {
+	fmt.Print("Judul: ", p.judul, "\n")
+	fmt.Println("[Topik]: ", p.topik)
+
+	fmt.Println("Diskusi:")
+	for j := 0; j < p.replies.n; j++ {
+		fmt.Print("[", p.replies.info[j].nama, "(", StringCapitalize(p.replies.info[j].tipe), ")]: ", p.replies.info[j].message, "\n")
+	}
+	fmt.Println("=====================")
+}
+
+func ArrIntPush(a *ArrInt, x int) {
+	if a.n < ARR_STATIC_MAX {
+		a.info[a.n] = x
+		a.n++
+	} else {
+		fmt.Println("[info]: Gagal menambahkan Integer ke Array")
+	}
+}
+
+// Untuk asien ~ Sequential Search
+func PertanyaanFindByTopikSequential(p PertanyaanArr, topik string) ArrInt {
+	var found ArrInt
+	var i int
+	for i = 0; i < p.n; i++ {
+		if p.info[i].topik == topik {
+			ArrIntPush(&found, i)
+		}
+	}
+	return found
+}
+
+// Untuk dokter ~ Binary Search
+func PasienFindByNOKTPBinary(p PasienArr, NOKTP string) int {
+	var kr, kn, mid int
+	var found = -1
+	kr = 0
+	kn = p.n - 1
+	for kr <= kn && found == -1 {
+		mid = (kr + kn) / 2
+		if NOKTP > p.info[mid].NOKTP {
+			kr = mid + 1
+		} else if NOKTP < p.info[mid].NOKTP {
+			kn = mid - 1
+		} else {
+			// ArrIntPush(&found, p.info[mid])
+			found = mid
+		}
+	}
+	return found
+}
+
+func PasienSort(p *PasienArr) {
+	var i, j, min_idx int
+	for i = 0; i < p.n-1; i++ {
+		min_idx = i
+		for j = i + 1; j < p.n; j++ {
+			if p.info[j].NOKTP < p.info[min_idx].NOKTP {
+				min_idx = j
+			}
+		}
+		if min_idx != i {
+			var temp = p.info[i]
+			p.info[i] = p.info[min_idx]
+			p.info[min_idx] = temp
+		}
+	}
+}
+
+func PasienPrint(p Pasien) {
+	fmt.Println(p.nama, p.umur, p.NOKTP)
 }
 
 func Daftar() {
@@ -198,7 +268,7 @@ Login sebagai
 1. Pasien
 2. Dokter
 0. Batalkan
-	`)
+ `)
 
 	var pilihan int
 	for pilihan = -1; !(pilihan >= 1 && pilihan <= 2) && pilihan != 0; {
@@ -240,18 +310,19 @@ Login sebagai
 func Forum__() {
 	var loggedAsDokter bool = db.user.tipe == "DOKTER"
 	var loggedAsPasien bool = db.user.tipe == "PASIEN"
-	var pilihan_max = 3
+	var pilihan_max = 4
 
 	fmt.Println(`
 Forum
 -----
 1. Lihat
 2. Tambah
-3. Balas`)
+3. Balas
+4. Cari`)
 
 	if loggedAsDokter {
 		pilihan_max++
-		fmt.Println("4. Tools <@sp-dokter>")
+		fmt.Println("5. Tools <@sp-dokter>")
 	}
 	fmt.Println("0. Batalkan")
 	fmt.Print("\n")
@@ -260,17 +331,16 @@ Forum
 	for pilihan = -1; !(pilihan >= 1 && pilihan <= pilihan_max) && pilihan != 0; {
 		fmt.Print("Masukan Pilihan: ")
 		fmt.Scanln(&pilihan)
-	}
-
-	if pilihan != 0 {
 		if pilihan == 1 {
 			ForumPrint(db.forum)
 		} else if pilihan == 2 {
 			if loggedAsPasien {
-				var pertanyaan string
+				var pertanyaan, topik string
 				fmt.Print("Masukan pertanyaan: ")
 				ScanString(&pertanyaan)
-				PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: pertanyaan})
+				fmt.Print("Masukkan topik: ")
+				fmt.Scanln(&topik)
+				PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: pertanyaan, topik: topik})
 			} else {
 				fmt.Println("[info]: Harap login sebagai pasien terlebih dahulu")
 			}
@@ -294,6 +364,18 @@ Forum
 				fmt.Print("[info]: Harap login terlebih dahulu")
 			}
 		} else if pilihan == 4 {
+			if loggedAsPasien || loggedAsDokter {
+				var input string
+				fmt.Print("Masukkan topik yang akan dicari: ")
+				fmt.Scanln(&input)
+				found := PertanyaanFindByTopikSequential(db.forum.pertanyaan, input)
+				for i := 0; i < found.n; i++ {
+					PertanyaanPrint(db.forum.pertanyaan.info[found.info[i]])
+				}
+			} else {
+				fmt.Print("[info]: Harap login terlebih dahulu")
+			}
+		} else if pilihan == 5 {
 			if loggedAsDokter {
 				// + TOOLS
 				var input int
@@ -301,22 +383,32 @@ Forum
 Tools Dokter
 ------------
 1. Urut / Sort pertanyaan
+2. Cari NOKTP
 0. Batalkan
-				`)
+       `)
 
-				for input = -1; !(input >= 1 && input <= 1) && input != 0; {
+				for input = -1; !(input >= 1 && input <= 2) && input != 0; {
 					fmt.Print("Masukkan pilihan: ")
 					fmt.Scanln(&input)
 				}
 
-				if input != 0 {
+				if input == 0 {
+					fmt.Println(`
+Forum
+-----
+1. Lihat
+2. Tambah
+3. Balas
+4. Cari`)
+					pilihan = -1
+				} else if input == 1 {
 					fmt.Println(`
 Urut secara
 -----------
 1. Ascending
 2. Descending
 0. Batalkan
-					`)
+           `)
 
 					for input = -1; !(input >= 1 && input <= 2) && input != 0; {
 						fmt.Print("Masukkan pilihan: ")
@@ -328,10 +420,22 @@ Urut secara
 					} else if input == 2 {
 						PertanyaanSortDesc(&db.forum.pertanyaan)
 					}
+				} else if input == 2 {
+					PasienSort(&db.pasien)
+					var input string
+					var idx int
+					fmt.Print("Masukkan NOKTP pasien yang dicari: ")
+					fmt.Scanln(&input)
+					idx = PasienFindByNOKTPBinary(db.pasien, input)
+					if idx != -1 {
+						fmt.Print("[Pasien ditemukan]: ")
+						PasienPrint(db.pasien.info[idx])
+					}
 				}
 			}
 		}
 	}
+
 }
 
 func printLogin() {
@@ -353,45 +457,24 @@ func ReplyPush(r *ReplyArr, x Reply) {
 	}
 }
 
-func TopikPush(t *TopikArr, x string) {
-	if t.n < ARR_STATIC_MAX {
-		t.info[t.n] = x
-		t.n++
-	} else {
-		fmt.Println("[info]: Gagal menambahkan Topik")
-	}
-}
-
-func TopikSort(t *TopikArr) {
-	for i := 0; i < t.n; i++ {
-		for j := i + 1; j < t.n; j++ {
-			if t.info[j][0] < t.info[i][0] {
-				tmp := t.info[i]
-				t.info[i] = t.info[j]
-				t.info[j] = tmp
-			}
-		}
-	}
-}
-
 var db Database
 
 func main() {
 	DokterPush(&db.dokter, Dokter{nama: "Helmi", password: "admin", umur: 19})
 	DokterPush(&db.dokter, Dokter{nama: "Fattan", password: "admin", umur: 19})
 
-	PasienPush(&db.pasien, Pasien{nama: "nala", password: "nala", umur: 19})
-	PasienPush(&db.pasien, Pasien{nama: "aku", password: "123", umur: 19})
+	PasienPush(&db.pasien, Pasien{nama: "nala", password: "nala", umur: 19, NOKTP: "12345678"})
+	PasienPush(&db.pasien, Pasien{nama: "aku", password: "123", umur: 19, NOKTP: "12356748"})
 
 	db.user.tipe = USER_TIPE[0]
 	db.user.pasien = &db.pasien.info[PasienFind(db.pasien, Pasien{nama: "nala", password: "nala", umur: 19})]
 
-	PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu lambung"})
+	PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu lambung", topik: "Lambung"})
 	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "nala", message: "xxx", tipe: "PASIEN"})
 	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "aku", message: "xxx", tipe: "PASIEN"})
 	ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "dia", message: "xxx", tipe: "PASIEN"})
 
-	PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu kucing"})
+	PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu kucing", topik: "Lambung"})
 	ReplyPush(&db.forum.pertanyaan.info[1].replies, Reply{nama: "joko", message: "xxx", tipe: "PASIEN"})
 
 	for i := -1; i != 0; {
