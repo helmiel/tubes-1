@@ -1,81 +1,96 @@
 package main
 
+
 import (
-    "fmt"
     "bufio"
+    "fmt"
     "os"
     "strings"
 )
 
+
 const ARR_STATIC_MAX int = 1024
+
 
 type ArrInt struct {
     info [ARR_STATIC_MAX]int
-    n    int
+    n int
 }
+
 
 var USER_TIPE = [2]string{"PASIEN", "DOKTER"}
 
+
 type User struct {
-    tipe   string
+    tipe string
     pasien *Pasien
     dokter *Dokter
 }
 
+
 type Pasien struct {
     nama, password string
-    umur           int
-    NOKTP          string
+    umur int
+    NOKTP string
 }
+
 
 type PasienArr struct {
     info [ARR_STATIC_MAX]Pasien
-    n    int
+    n int
 }
+
 
 type Dokter struct {
     nama, password string
-    umur           int
+    umur int
 }
+
 
 type DokterArr struct {
     info [ARR_STATIC_MAX]Dokter
-    n    int
+    n int
 }
+
 
 type Forum struct {
     pertanyaan PertanyaanArr
 }
 
+
 type Pertanyaan struct {
     judul, topik string
-    pasien       Pasien
-    replies      ReplyArr
+    pasien Pasien
+    replies ReplyArr
 }
 type PertanyaanArr struct {
     info [ARR_STATIC_MAX]Pertanyaan
-    n    int
+    n int
 }
+
 
 type Reply struct {
     nama, message, tipe string
 }
 
+
 type ReplyArr struct {
     info [ARR_STATIC_MAX]Reply
-    n    int
+    n int
 }
+
 
 func Menu() {
     fmt.Println(`
-    Konsultasi Kesehatan
-    --------------------
-    1. Daftar
-    2. Login
-    3. Logout
-    4. Forum
-    0. Keluar`)
+Konsultasi Kesehatan
+--------------------
+1. Daftar
+2. Login
+3. Logout
+4. Forum
+0. Keluar`)
 }
+
 
 /* ArrInt
 */
@@ -88,17 +103,19 @@ func ArrIntPush(a *ArrInt, x int) {
     }
 }
 
+
 /* Pasien
 */
 func PasienFind(arr PasienArr, x Pasien) int {
     var idx int = -1
     for i := 0; i < arr.n && idx == -1; i++ {
-        if x.nama == arr.info[i].nama && x.password == arr.info[i].password {
+        if x.nama == arr.info[i].nama && x.password == arr.info[i].password && x.NOKTP == arr.info[i].NOKTP {
             idx = i
         }
     }
     return idx
 }
+
 
 func PasienFindByNOKTPBinary(p PasienArr, NOKTP string) int {
     var kr, kn, mid int
@@ -118,6 +135,7 @@ func PasienFindByNOKTPBinary(p PasienArr, NOKTP string) int {
     return found
 }
 
+
 func PasienPush(arr *PasienArr, x Pasien) {
     if arr.n < ARR_STATIC_MAX {
         arr.info[arr.n] = x
@@ -126,6 +144,7 @@ func PasienPush(arr *PasienArr, x Pasien) {
         fmt.Println("[info]: Gagal menambahkan Pasien")
     }
 }
+
 
 /* Selection Sort */
 func PasienSort(p *PasienArr) {
@@ -146,6 +165,8 @@ func PasienSort(p *PasienArr) {
 }
 
 
+
+
 /* Dokter
 */
 func DokterFind(arr DokterArr, x Dokter) int {
@@ -158,6 +179,7 @@ func DokterFind(arr DokterArr, x Dokter) int {
     return idx
 }
 
+
 func DokterPush(arr *DokterArr, x Dokter) {
     if arr.n < ARR_STATIC_MAX {
         arr.info[arr.n] = x
@@ -166,6 +188,7 @@ func DokterPush(arr *DokterArr, x Dokter) {
         fmt.Println("[info]: Gagal menambahkan Dokter")
     }
 }
+
 
 /* Pertanyaan
 */
@@ -180,6 +203,7 @@ func PertanyaanFind(p PertanyaanArr, topik string) ArrInt {
     return found
 }
 
+
 func PertanyaanPush(p *PertanyaanArr, x Pertanyaan) {
     if p.n < ARR_STATIC_MAX {
         p.info[p.n] = x
@@ -188,6 +212,7 @@ func PertanyaanPush(p *PertanyaanArr, x Pertanyaan) {
         fmt.Println("[info]: Gagal menambahkan Pertanyaan")
     }
 }
+
 
 /* Selection Sort */
 func PertanyaanSortAsc(p *PertanyaanArr) {
@@ -205,6 +230,7 @@ func PertanyaanSortAsc(p *PertanyaanArr) {
     }
 }
 
+
 /* Insertion Sort */
 func PertanyaanSortDesc(p *PertanyaanArr) {
     for i := 1; i < p.n; i++ {
@@ -217,9 +243,11 @@ func PertanyaanSortDesc(p *PertanyaanArr) {
     }
 }
 
+
 func PertanyaanPrint(p Pertanyaan) {
     fmt.Print("Judul: ", p.judul, "\n")
     fmt.Println("[Topik]: ", p.topik)
+
 
     fmt.Println("Diskusi:")
     for j := 0; j < p.replies.n; j++ {
@@ -227,6 +255,7 @@ func PertanyaanPrint(p Pertanyaan) {
     }
     fmt.Println("=====================")
 }
+
 
 /* Forum
 */
@@ -237,9 +266,11 @@ func ForumPrint(f Forum) {
     }
 }
 
+
 func PasienPrint(p Pasien) {
     fmt.Println(p.nama, p.umur, p.NOKTP)
 }
+
 
 func Daftar() {
     var pasien Pasien
@@ -248,16 +279,20 @@ func Daftar() {
     fmt.Print("Masukkan Nama: ")
     fmt.Scanln(&pasien.nama)
 
+
     fmt.Print("Masukkan Password: ")
     fmt.Scanln(&pasien.password)
+
 
     fmt.Print("Masukkan Umur: ")
     fmt.Scanln(&pasien.umur)
 
+
     fmt.Print("Masukkan NOKTP: ")
     fmt.Scanln(&pasien.NOKTP)
 
-    hasil = PasienFind(*&db.pasien, pasien)
+
+    hasil = PasienFind(db.pasien, pasien)
     if hasil == -1 {
         PasienPush(&db.pasien, pasien)
     } else {
@@ -265,14 +300,16 @@ func Daftar() {
     }
 }
 
+
 func Login() {
     fmt.Println(`
-    Login sebagai
-    -------------
-    1. Pasien
-    2. Dokter
-    0. Batalkan
+Login sebagai
+-------------
+1. Pasien
+2. Dokter
+0. Batalkan
     `)
+
 
     var pilihan int
     for pilihan = -1; !(pilihan >= 1 && pilihan <= 2) && pilihan != 0; {
@@ -280,14 +317,18 @@ func Login() {
         fmt.Scanln(&pilihan)
     }
 
+
     if pilihan != 0 {
         var nama, password string
+
 
         fmt.Print("Masukan Nama: ")
         fmt.Scanln(&nama)
 
+
         fmt.Print("Masukan Password: ")
         fmt.Scanln(&password)
+
 
         if pilihan == 1 {
             idx := PasienFind(db.pasien, Pasien{nama: nama, password: password})
@@ -311,18 +352,21 @@ func Login() {
     }
 }
 
+
 func Forum__() {
     var loggedAsDokter bool = db.user.tipe == "DOKTER"
     var loggedAsPasien bool = db.user.tipe == "PASIEN"
     var pilihan_max = 4
 
+
     fmt.Println(`
-    Forum
-    -----
-    1. Lihat
-    2. Tambah
-    3. Balas
-    4. Cari`)
+Forum
+-----
+1. Lihat
+2. Tambah
+3. Balas
+4. Cari`)
+
 
     if loggedAsDokter {
         pilihan_max++
@@ -330,6 +374,7 @@ func Forum__() {
     }
     fmt.Println("0. Batalkan")
     fmt.Print("\n")
+
 
     var pilihan int
     for pilihan = -1; !(pilihan >= 1 && pilihan <= pilihan_max) && pilihan != 0; {
@@ -383,40 +428,43 @@ func Forum__() {
             if loggedAsDokter {
                 var input int
                 fmt.Println(`
-                Tools Dokter
-                ------------
-                1. Urut / Sort pertanyaan
-                2. Cari NOKTP
-                0. Batalkan
-                `)
+Tools Dokter
+------------
+1. Urut / Sort pertanyaan
+2. Cari NOKTP
+0. Batalkan`)
+
 
                 for input = -1; !(input >= 1 && input <= 2) && input != 0; {
                     fmt.Print("Masukkan pilihan: ")
                     fmt.Scanln(&input)
                 }
 
+
                 if input == 0 {
                     fmt.Println(`
-                    Forum
-                    -----
-                    1. Lihat
-                    2. Tambah
-                    3. Balas
-                    4. Cari`)
+Forum
+-----
+1. Lihat
+2. Tambah
+3. Balas
+4. Cari`)
                     pilihan = -1
                 } else if input == 1 {
                     fmt.Println(`
-                    Urut secara
-                    -----------
-                    1. Ascending
-                    2. Descending
-                    0. Batalkan
-                    `)
+Urut secara
+-----------
+1. Ascending
+2. Descending
+0. Batalkan
+`)
+
 
                     for input = -1; !(input >= 1 && input <= 2) && input != 0; {
                         fmt.Print("Masukkan pilihan: ")
                         fmt.Scanln(&input)
                     }
+
 
                     if input == 1 {
                         PertanyaanSortAsc(&db.forum.pertanyaan)
@@ -441,7 +489,9 @@ func Forum__() {
         }
     }
 
+
 }
+
 
 /* Relpy
 */
@@ -454,37 +504,45 @@ func ReplyPush(r *ReplyArr, x Reply) {
     }
 }
 
+
 type Database struct {
-    user   User
+    user User
     pasien PasienArr
     dokter DokterArr
-    forum  Forum
+    forum Forum
 }
 
+
 var db Database
+
 
 func main() {
     DokterPush(&db.dokter, Dokter{nama: "Helmi", password: "admin", umur: 19})
     DokterPush(&db.dokter, Dokter{nama: "Fattan", password: "admin", umur: 19})
 
+
     PasienPush(&db.pasien, Pasien{nama: "nala", password: "nala", umur: 19, NOKTP: "12345678"})
     PasienPush(&db.pasien, Pasien{nama: "aku", password: "123", umur: 19, NOKTP: "12356748"})
 
+
     db.user.tipe = USER_TIPE[0]
-    db.user.pasien = &db.pasien.info[PasienFind(db.pasien, Pasien{nama: "nala", password: "nala", umur: 19})]
+    db.user.pasien = &db.pasien.info[PasienFind(db.pasien, Pasien{nama: "nala", password: "nala", umur: 19, NOKTP: "12345678"})]
 
     PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu lambung", topik: "Lambung"})
     ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "nala", message: "xxx", tipe: "PASIEN"})
     ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "aku", message: "xxx", tipe: "PASIEN"})
     ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{nama: "dia", message: "xxx", tipe: "PASIEN"})
 
+
     PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "apa itu kucing", topik: "Lambung"})
     ReplyPush(&db.forum.pertanyaan.info[1].replies, Reply{nama: "joko", message: "xxx", tipe: "PASIEN"})
+
 
     for i := -1; i != 0; {
         Menu()
         fmt.Print("Masukkan: ")
         fmt.Scanln(&i)
+
 
         if i == 1 {
             Daftar()
@@ -498,15 +556,18 @@ func main() {
     }
 }
 
+
 func ScanString(buf *string) {
     scanner := bufio.NewScanner(os.Stdin)
     scanner.Scan()
     *buf = scanner.Text()
 }
 
+
 func StringCapitalize(str string) string {
     return strings.Title(strings.ToLower(str))
 }
+
 
 func Logout() {
     db.user.tipe = ""
