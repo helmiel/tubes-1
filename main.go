@@ -359,7 +359,11 @@ Forum
                 if i > 0 && i <= db.forum.pertanyaan.n {
                     fmt.Print("Masukkan balasan anda: ")
                     ScanString(&reply.message)
-                    reply.username = db.user.pasien.username
+                    if loggedAsDokter {
+                        reply.username = db.user.dokter.username
+                    } else {
+                        reply.username = db.user.pasien.username
+                    }
                     reply.tipe = db.user.tipe
                     ReplyPush(&db.forum.pertanyaan.info[i-1].replies, reply)
                 } else {
