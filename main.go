@@ -316,7 +316,6 @@ func Forum__() {
     var loggedAsPasien bool = db.user.tipe == "PASIEN"
     var pilihan_max = 4
 
-
     fmt.Println(`
 Forum
 -----
@@ -332,7 +331,6 @@ Forum
     }
     fmt.Println("0. Batalkan")
     fmt.Print("\n")
-
 
     var pilihan int
     for pilihan = -1; !(pilihan >= 1 && pilihan <= pilihan_max) && pilihan != 0; {
@@ -399,7 +397,6 @@ Tools Dokter
                     fmt.Scanln(&input)
                 }
 
-
                 if input == 0 {
                     fmt.Println(`
 Forum
@@ -422,7 +419,6 @@ Urut secara
                         fmt.Print("Masukkan pilihan: ")
                         fmt.Scanln(&input)
                     }
-
 
                     if input == 1 {
                         PertanyaanSortAsc(&db.forum.pertanyaan)
@@ -489,13 +485,11 @@ Login sebagai
 0. Batalkan
     `)
 
-
     var pilihan int
     for pilihan = -1; !(pilihan >= 1 && pilihan <= 2) && pilihan != 0; {
         fmt.Print("Masukan Pilihan: ")
         fmt.Scanln(&pilihan)
     }
-
 
     if pilihan != 0 {
         var username, password string
