@@ -277,6 +277,8 @@ func main() {
     PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "Bagaimana Cara Kucing Tidur", topik: "Kucing"})
     ReplyPush(&db.forum.pertanyaan.info[1].replies, Reply{username: "sari", message: "balon ku ada 5", tipe: "PASIEN"})
 
+    Logout()
+
     for i := -1; i != 0; {
         Menu()
         fmt.Print("Masukkan: ")
