@@ -408,7 +408,8 @@ Forum
 2. Tambah
 3. Balas
 4. Cari
-5. Tools <@sp-dokter>`)
+5. Tools <@sp-dokter>
+0. Batalkan`)
                     pilihan = -1
                 } else if input == 1 {
                     fmt.Println(`
