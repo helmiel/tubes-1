@@ -395,7 +395,6 @@ Tools Dokter
 2. Cari NOKTP
 0. Batalkan`)
 
-
                 for input = -1; !(input >= 1 && input <= 2) && input != 0; {
                     fmt.Print("Masukkan pilihan: ")
                     fmt.Scanln(&input)
@@ -408,7 +407,8 @@ Forum
 1. Lihat
 2. Tambah
 3. Balas
-4. Cari`)
+4. Cari
+5. Tools <@sp-dokter>`)
                     pilihan = -1
                 } else if input == 1 {
                     fmt.Println(`
