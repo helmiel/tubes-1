@@ -456,8 +456,7 @@ Urut secara
 -----------
 1. Ascending
 2. Descending
-0. Batalkan
-`)
+0. Batalkan`)
 
 
                     for input = -1; !(input >= 1 && input <= 2) && input != 0; {
