@@ -22,46 +22,40 @@ type User struct {
     dokter *Dokter
 }
 
-
 type Pasien struct {
     nama, password, username, NOKTP string
     umur int
 }
-
 
 type PasienArr struct {
     info [ARR_STATIC_MAX]Pasien
     n int
 }
 
-
 type Dokter struct {
     nama, username, password string
     umur int
 }
-
 
 type DokterArr struct {
     info [ARR_STATIC_MAX]Dokter
     n int
 }
 
-
 type Forum struct {
     pertanyaan PertanyaanArr
 }
-
 
 type Pertanyaan struct {
     judul, topik string
     pasien Pasien
     replies ReplyArr
 }
+
 type PertanyaanArr struct {
     info [ARR_STATIC_MAX]Pertanyaan
     n int
 }
-
 
 type Reply struct {
     username, message, tipe string
@@ -82,7 +76,6 @@ func ArrIntPush(a *ArrInt, x int) {
         fmt.Println("[info]: Gagal menambahkan Integer ke Array")
     }
 }
-
 
 /* Pasien
 */
@@ -137,7 +130,6 @@ func PasienPush(arr *PasienArr, x Pasien) {
     }
 }
 
-
 /* Selection Sort */
 func PasienSort(p *PasienArr) {
     var i, j, min_idx int
@@ -156,7 +148,6 @@ func PasienSort(p *PasienArr) {
     }
 }
 
-
 /* Dokter
 */
 func DokterFind(arr DokterArr, username, password string) int {
@@ -169,7 +160,6 @@ func DokterFind(arr DokterArr, username, password string) int {
     return idx
 }
 
-
 func DokterPush(arr *DokterArr, x Dokter) {
     if arr.n < ARR_STATIC_MAX {
         arr.info[arr.n] = x
@@ -178,7 +168,6 @@ func DokterPush(arr *DokterArr, x Dokter) {
         fmt.Println("[info]: Gagal menambahkan Dokter")
     }
 }
-
 
 /* Pertanyaan
 */
@@ -193,7 +182,6 @@ func PertanyaanFind(p PertanyaanArr, topik string) ArrInt {
     return found
 }
 
-
 func PertanyaanPush(p *PertanyaanArr, x Pertanyaan) {
     if p.n < ARR_STATIC_MAX {
         p.info[p.n] = x
@@ -202,7 +190,6 @@ func PertanyaanPush(p *PertanyaanArr, x Pertanyaan) {
         fmt.Println("[info]: Gagal menambahkan Pertanyaan")
     }
 }
-
 
 /* Selection Sort */
 func PertanyaanSortAsc(p *PertanyaanArr) {
@@ -220,7 +207,6 @@ func PertanyaanSortAsc(p *PertanyaanArr) {
     }
 }
 
-
 /* Insertion Sort */
 func PertanyaanSortDesc(p *PertanyaanArr) {
     for i := 1; i < p.n; i++ {
@@ -233,7 +219,6 @@ func PertanyaanSortDesc(p *PertanyaanArr) {
     }
 }
 
-
 func PertanyaanPrint(p Pertanyaan) {
     fmt.Println("[Judul]:", p.judul)
     fmt.Println("[Topik]:", p.topik)
@@ -243,7 +228,6 @@ func PertanyaanPrint(p Pertanyaan) {
     }
     fmt.Print("=====================\n\n")
 }
-
 
 /* Forum
 */
