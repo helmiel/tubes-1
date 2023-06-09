@@ -109,7 +109,7 @@ func ArrIntPush(a *ArrInt, x int) {
 func PasienFind(arr PasienArr, x Pasien) int {
     var idx int = -1
     for i := 0; i < arr.n && idx == -1; i++ {
-        if x.nama == arr.info[i].nama && x.password == arr.info[i].password && x.NOKTP == arr.info[i].NOKTP {
+        if x.nama == arr.info[i].nama && x.password == arr.info[i].password {
             idx = i
         }
     }
@@ -292,7 +292,8 @@ func Daftar() {
     fmt.Scanln(&pasien.NOKTP)
 
 
-    hasil = PasienFind(db.pasien, pasien)
+    PasienSort(&db.pasien)
+    hasil = PasienFindByNOKTPBinary(db.pasien, pasien.NOKTP)
     if hasil == -1 {
         PasienPush(&db.pasien, pasien)
     } else {
@@ -471,7 +472,6 @@ Urut secara
                         PertanyaanSortDesc(&db.forum.pertanyaan)
                     }
                 } else if input == 2 {
-                    PasienSort(&db.pasien)
                     var input string
                     var idx int
                     fmt.Print("Masukkan NOKTP pasien yang dicari: ")
