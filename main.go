@@ -11,8 +11,21 @@ var USER_TIPE = [2]string{"PASIEN", "DOKTER"}
 
 const ARR_STATIC_MAX int = 1024
 
+func btoi(b bool) int {
+    if b {
+        return 1
+    }
+
+    return 0
+}
+
 type ArrInt struct {
     info [ARR_STATIC_MAX]int
+    n int
+}
+
+type ArrString struct {
+    info [ARR_STATIC_MAX]string
     n int
 }
 
@@ -64,6 +77,27 @@ type Reply struct {
 type ReplyArr struct {
     info [ARR_STATIC_MAX]Reply
     n int
+}
+
+/* ArrInt
+*/
+func ArrStringPush(a *ArrString, x string) {
+    if a.n < ARR_STATIC_MAX {
+        a.info[a.n] = x
+        a.n++
+    } else {
+        fmt.Println("[info]: Gagal menambahkan String ke Array")
+    }
+}
+
+func ArrStringMax(a ArrString) int {
+    var idx int = 0;
+    for i := 1; i < a.n && idx == 0; i++ {
+        if (len(a.info[i]) > len(a.info[idx])) {
+            idx = i;
+        }
+    }
+    return idx
 }
 
 /* ArrInt
@@ -256,42 +290,93 @@ type Database struct {
     forum Forum
 }
 
-const HEADER_TITLE_GAP = 4
-func Header(title string) {
-    // Atas
-    fmt.Print("*")
-    for i := 0; i < len(title) + (HEADER_TITLE_GAP * 2) - 2; i++ {
-        fmt.Print("-")
+const HEADER_BOX_GAP = 2
+const HEADER_BOX_SPACE = 2
+const HEADER_PILLAR_WIDTH = 3
+func Header(teks ArrString) {
+    if (HEADER_BOX_GAP % 2 == 0 && HEADER_BOX_SPACE % 2 == 0) {
+        max := teks.info[ArrStringMax(teks)];
+        width := len(max) + HEADER_BOX_GAP + HEADER_BOX_SPACE
+
+        // Atas
+        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+            fmt.Print("*")
+        }
+        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
+            fmt.Print(" ")
+        }
+        for i := 0; i < width; i++ {
+            fmt.Print("-")
+        }
+        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
+            fmt.Print(" ")
+        }
+        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+            fmt.Print("*")
+        }
+        fmt.Println()
+
+
+        // Tengah
+        for i := 0; i < teks.n; i++ {
+            var jarak_antara_teks int = (len(max) - len(teks.info[i])) / 2
+
+            for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+                fmt.Print("*")
+            }
+            for j := 0; j < HEADER_BOX_SPACE + HEADER_BOX_GAP; j++ {
+                fmt.Print(" ")
+            }
+
+            for j := 0; j < jarak_antara_teks; j++ {
+                fmt.Print(" ")
+            }
+            fmt.Print(teks.info[i])
+            for j := 0; j < jarak_antara_teks; j++ {
+                fmt.Print(" ")
+            }
+
+            var kurang_satu_space int /* bool */ = btoi(len(teks.info[i]) % 2 == 0 && len(max) % 2 != 0)
+            for j := 0; j < HEADER_BOX_SPACE + HEADER_BOX_GAP + kurang_satu_space; j++ {
+                fmt.Print(" ")
+            }
+            for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+                fmt.Print("*")
+            }
+
+
+            fmt.Println()
+        }
+
+        // Bawah
+        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+            fmt.Print("*")
+        }
+        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
+            fmt.Print(" ")
+        }
+        for i := 0; i < width; i++ {
+            fmt.Print("-")
+        }
+        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
+            fmt.Print(" ")
+        }
+        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+            fmt.Print("*")
+        }
+        fmt.Println()
+    } else {
+        fmt.Println("[info]: Gap dan space box harus genap.")
     }
-    fmt.Print("*")
-    fmt.Println()
-
-
-    // Judul / Tengah
-    fmt.Print("|")
-    for i := 0; i < HEADER_TITLE_GAP - 1; i++ {
-        fmt.Print(" ")
-    }
-    fmt.Print(title)
-
-    for i := 0; i < HEADER_TITLE_GAP - 1; i++ {
-        fmt.Print(" ")
-    }
-    fmt.Print("|")
-    fmt.Println()
-
-
-    // Bawah
-    fmt.Print("*")
-    for i := 0; i < len(title) + (HEADER_TITLE_GAP * 2) - 2; i++ {
-        fmt.Print("-")
-    }
-    fmt.Print("*")
-    fmt.Println()
 }
 
 func Menu() {
-    Header("Dokter Modol")
+    var teks ArrString
+    ArrStringPush(&teks, "Dokter Modol")
+    ArrStringPush(&teks, "Ditulis ole Dokter Modol")
+    ArrStringPush(&teks, "diawjdwidjka")
+
+    Header(teks)
 
     fmt.Println(`
 Konsultasi Kesehatan
