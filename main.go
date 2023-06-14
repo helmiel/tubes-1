@@ -92,7 +92,7 @@ func ArrStringPush(a *ArrString, x string) {
 
 func ArrStringMax(a ArrString) int {
     var idx int = 0;
-    for i := 1; i < a.n && idx == 0; i++ {
+    for i := 1; i < a.n; i++ {
         if (len(a.info[i]) > len(a.info[idx])) {
             idx = i;
         }
@@ -297,6 +297,7 @@ func Header(teks ArrString) {
     if (HEADER_BOX_GAP % 2 == 0 && HEADER_BOX_SPACE % 2 == 0) {
         max := teks.info[ArrStringMax(teks)];
         width := len(max) + HEADER_BOX_GAP + HEADER_BOX_SPACE
+        fmt.Println(max)
 
         // Atas
         for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
@@ -372,9 +373,10 @@ func Header(teks ArrString) {
 
 func Menu() {
     var teks ArrString
-    ArrStringPush(&teks, "Dokter Modol")
-    ArrStringPush(&teks, "Ditulis ole Dokter Modol")
-    ArrStringPush(&teks, "diawjdwidjka")
+    ArrStringPush(&teks, "Tugas Besar")
+    ArrStringPush(&teks, "Konsultasi Kesehatan")
+    ArrStringPush(&teks, "Algoritma Pemograman 2023")
+    ArrStringPush(&teks, "Ditulis Fattan & Helmi")
 
     Header(teks)
 
