@@ -297,6 +297,7 @@ func Header(teks ArrString) {
     if (HEADER_BOX_GAP % 2 == 0 && HEADER_BOX_SPACE % 2 == 0) {
         max := teks.info[ArrStringMax(teks)];
         width := len(max) + HEADER_BOX_GAP + HEADER_BOX_SPACE
+        fmt.Println(max)
 
         // Atas
         for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
@@ -316,16 +317,12 @@ func Header(teks ArrString) {
         }
         fmt.Println()
 
+
         // Tengah
         for i := 0; i < teks.n; i++ {
             var jarak_antara_teks int = (len(max) - len(teks.info[i])) / 2
-            var kurang_satu_space int /* bool */;
-
-            if (len(max) % 2 == 0) {
-                kurang_satu_space = btoi(len(teks.info[i]) % 2 != 0)
-            } else {
-                kurang_satu_space = btoi(len(teks.info[i]) % 2 == 0)
-            }
+            var kurang_satu_space int /* bool */ = btoi(len(teks.info[i]) % 2 == 0 && len(max) % 2 != 0)
+            // fmt.Println(kurang_satu_space)
 
             for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
                 fmt.Print("*")
