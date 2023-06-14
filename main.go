@@ -293,40 +293,47 @@ type Database struct {
 const HEADER_BOX_GAP = 2
 const HEADER_BOX_SPACE = 2
 const HEADER_PILLAR_WIDTH = 3
+
+func HeaderAlas(width int) {
+    for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+        fmt.Print("*")
+    }
+    for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
+        fmt.Print(" ")
+    }
+    for i := 0; i < width; i++ {
+        fmt.Print("-")
+    }
+    for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
+        fmt.Print(" ")
+    }
+    for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+        fmt.Print("*")
+    }
+    fmt.Println()
+}
+
 func Header(teks ArrString) {
     if (HEADER_BOX_GAP % 2 == 0 && HEADER_BOX_SPACE % 2 == 0) {
-        max := teks.info[ArrStringMax(teks)];
-        width := len(max) + HEADER_BOX_GAP + HEADER_BOX_SPACE
+        var maks string = teks.info[ArrStringMax(teks)];
+        var width int = len(maks) + HEADER_BOX_GAP + HEADER_BOX_SPACE
 
         // Atas
-        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
-            fmt.Print("*")
-        }
-        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
-            fmt.Print(" ")
-        }
-        for i := 0; i < width; i++ {
-            fmt.Print("-")
-        }
-        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
-            fmt.Print(" ")
-        }
-        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
-            fmt.Print("*")
-        }
-        fmt.Println()
+        HeaderAlas(width)
 
         // Tengah
         for i := 0; i < teks.n; i++ {
-            var jarak_antara_teks int = (len(max) - len(teks.info[i])) / 2
-            var kurang_satu_space int /* bool */;
+            var jarak_antara_teks int = (len(maks) - len(teks.info[i])) / 2
+            var kurang_satu_space int /* bool */
 
-            if (len(max) % 2 == 0) {
+            // cek kalo perlu +1 spasi
+            if (len(maks) % 2 == 0) {
                 kurang_satu_space = btoi(len(teks.info[i]) % 2 != 0)
             } else {
                 kurang_satu_space = btoi(len(teks.info[i]) % 2 == 0)
             }
 
+            // Samping
             for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
                 fmt.Print("*")
             }
@@ -334,6 +341,7 @@ func Header(teks ArrString) {
                 fmt.Print(" ")
             }
 
+            // Tengah
             for j := 0; j < jarak_antara_teks; j++ {
                 fmt.Print(" ")
             }
@@ -342,6 +350,7 @@ func Header(teks ArrString) {
                 fmt.Print(" ")
             }
 
+            // Samping
             for j := 0; j < HEADER_BOX_SPACE + HEADER_BOX_GAP + kurang_satu_space; j++ {
                 fmt.Print(" ")
             }
@@ -354,22 +363,7 @@ func Header(teks ArrString) {
         }
 
         // Bawah
-        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
-            fmt.Print("*")
-        }
-        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
-            fmt.Print(" ")
-        }
-        for i := 0; i < width; i++ {
-            fmt.Print("-")
-        }
-        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
-            fmt.Print(" ")
-        }
-        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
-            fmt.Print("*")
-        }
-        fmt.Println()
+        HeaderAlas(width)
     } else {
         fmt.Println("[info]: Gap dan space box harus genap.")
     }
@@ -378,8 +372,8 @@ func Header(teks ArrString) {
 func Menu() {
     var teks ArrString
     ArrStringPush(&teks, "Tugas Besar")
+    ArrStringPush(&teks, "Algoritma Pemograman 2023")
     ArrStringPush(&teks, "Konsultasi Kesehatan")
-    ArrStringPush(&teks, "Algoritma Pemograman 20231")
     ArrStringPush(&teks, "Ditulis Fattan & Helmi")
 
     Header(teks)
