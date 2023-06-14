@@ -256,6 +256,53 @@ type Database struct {
     forum Forum
 }
 
+const HEADER_TITLE_GAP = 4
+func Header(title string) {
+    // Atas
+    fmt.Print("*")
+    for i := 0; i < len(title) + (HEADER_TITLE_GAP * 2) - 2; i++ {
+        fmt.Print("-")
+    }
+    fmt.Print("*")
+    fmt.Println()
+
+
+    // Judul / Tengah
+    fmt.Print("|")
+    for i := 0; i < HEADER_TITLE_GAP - 1; i++ {
+        fmt.Print(" ")
+    }
+    fmt.Print(title)
+
+    for i := 0; i < HEADER_TITLE_GAP - 1; i++ {
+        fmt.Print(" ")
+    }
+    fmt.Print("|")
+    fmt.Println()
+
+
+    // Bawah
+    fmt.Print("*")
+    for i := 0; i < len(title) + (HEADER_TITLE_GAP * 2) - 2; i++ {
+        fmt.Print("-")
+    }
+    fmt.Print("*")
+    fmt.Println()
+}
+
+func Menu() {
+    Header("Dokter Modol")
+
+    fmt.Println(`
+Konsultasi Kesehatan
+--------------------
+1. Daftar
+2. Login
+3. Logout
+4. Forum
+0. Keluar`)
+}
+
 var db Database
 
 func main() {
@@ -527,15 +574,4 @@ Login sebagai
             }
         }
     }
-}
-
-func Menu() {
-    fmt.Println(`
-Konsultasi Kesehatan
---------------------
-1. Daftar
-2. Login
-3. Logout
-4. Forum
-0. Keluar`)
 }
