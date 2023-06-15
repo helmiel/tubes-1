@@ -1,10 +1,10 @@
 package main
 
 import (
-    "bufio"
-    "fmt"
-    "os"
-    "strings"
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
 )
 
 var USER_TIPE = [2]string{"PASIEN", "DOKTER"}
@@ -293,47 +293,40 @@ type Database struct {
 const HEADER_BOX_GAP = 2
 const HEADER_BOX_SPACE = 2
 const HEADER_PILLAR_WIDTH = 3
-
-func HeaderAlas(width int) {
-    for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
-        fmt.Print("*")
-    }
-    for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
-        fmt.Print(" ")
-    }
-    for i := 0; i < width; i++ {
-        fmt.Print("-")
-    }
-    for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
-        fmt.Print(" ")
-    }
-    for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
-        fmt.Print("*")
-    }
-    fmt.Println()
-}
-
 func Header(teks ArrString) {
     if (HEADER_BOX_GAP % 2 == 0 && HEADER_BOX_SPACE % 2 == 0) {
-        var maks string = teks.info[ArrStringMax(teks)];
-        var width int = len(maks) + HEADER_BOX_GAP + HEADER_BOX_SPACE
+        max := teks.info[ArrStringMax(teks)];
+        width := len(max) + HEADER_BOX_GAP + HEADER_BOX_SPACE
 
         // Atas
-        HeaderAlas(width)
+        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+            fmt.Print("*")
+        }
+        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
+            fmt.Print(" ")
+        }
+        for i := 0; i < width; i++ {
+            fmt.Print("-")
+        }
+        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
+            fmt.Print(" ")
+        }
+        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+            fmt.Print("*")
+        }
+        fmt.Println()
 
         // Tengah
         for i := 0; i < teks.n; i++ {
-            var jarak_antara_teks int = (len(maks) - len(teks.info[i])) / 2
-            var kurang_satu_space int /* bool */
+            var jarak_antara_teks int = (len(max) - len(teks.info[i])) / 2
+            var kurang_satu_space int /* bool */;
 
-            // cek kalo perlu +1 spasi
-            if (len(maks) % 2 == 0) {
+            if (len(max) % 2 == 0) {
                 kurang_satu_space = btoi(len(teks.info[i]) % 2 != 0)
             } else {
                 kurang_satu_space = btoi(len(teks.info[i]) % 2 == 0)
             }
 
-            // Samping
             for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
                 fmt.Print("*")
             }
@@ -341,7 +334,6 @@ func Header(teks ArrString) {
                 fmt.Print(" ")
             }
 
-            // Tengah
             for j := 0; j < jarak_antara_teks; j++ {
                 fmt.Print(" ")
             }
@@ -350,7 +342,6 @@ func Header(teks ArrString) {
                 fmt.Print(" ")
             }
 
-            // Samping
             for j := 0; j < HEADER_BOX_SPACE + HEADER_BOX_GAP + kurang_satu_space; j++ {
                 fmt.Print(" ")
             }
@@ -363,7 +354,22 @@ func Header(teks ArrString) {
         }
 
         // Bawah
-        HeaderAlas(width)
+        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+            fmt.Print("*")
+        }
+        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
+            fmt.Print(" ")
+        }
+        for i := 0; i < width; i++ {
+            fmt.Print("-")
+        }
+        for i := 0; i < (HEADER_BOX_SPACE / 2) + (HEADER_BOX_GAP / 2); i++ {
+            fmt.Print(" ")
+        }
+        for i := 0; i < HEADER_PILLAR_WIDTH; i++ {
+            fmt.Print("*")
+        }
+        fmt.Println()
     } else {
         fmt.Println("[info]: Gap dan space box harus genap.")
     }
@@ -372,15 +378,16 @@ func Header(teks ArrString) {
 func Menu() {
     var teks ArrString
     ArrStringPush(&teks, "Tugas Besar")
-    ArrStringPush(&teks, "Algoritma Pemograman 2023")
     ArrStringPush(&teks, "Konsultasi Kesehatan")
+    ArrStringPush(&teks, "Algoritma Pemograman 2023")
     ArrStringPush(&teks, "Ditulis Fattan & Helmi")
 
     Header(teks)
 
     fmt.Println(`
-Konsultasi Kesehatan
---------------------
+----
+Menu
+----
 1. Daftar
 2. Login
 3. Logout
@@ -402,12 +409,12 @@ func main() {
     db.user.pasien = &db.pasien.info[PasienFindByUsername(db.pasien, "nala")]
 
     PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "Apa itu Lambung", topik: "Lambung"})
-    ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{username: "jak", message: "OK", tipe: "PASIEN"})
-    ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{username: "nala", message: "OK?", tipe: "PASIEN"})
-    ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{username: "sari", message: "OK??", tipe: "PASIEN"})
+    ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{username: "jak", message: "Lambung adalah organ yang terletak di bagian atas abdomen dan merupakan bagian dari sistem pencernaan.", tipe: "PASIEN"})
+    ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{username: "nala", message: "Lambung memiliki dinding yang elastis dan otot-otot yang kuat yang memungkinkannya untuk melakukan gerakan mengaduk dan menghancurkan makanan yang masuk. Proses ini disebut sebagai pencernaan mekanis, yang membantu memecah makanan menjadi potongan-potongan kecil.", tipe: "PASIEN"})
+    ReplyPush(&db.forum.pertanyaan.info[0].replies, Reply{username: "sari", message: "Lambung juga berperan dalam pencernaan kimiawi melalui produksi asam lambung dan enzim-enzim pencernaan. Asam lambung membantu mengaktifkan enzim-enzim dan memecah protein dalam makanan menjadi peptida yang lebih kecil. Enzim-enzim seperti pepsinogen diubah menjadi pepsin oleh asam lambung dan membantu dalam pencernaan protein.", tipe: "PASIEN"})
 
-    PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "Bagaimana Cara Kucing Tidur", topik: "Kucing"})
-    ReplyPush(&db.forum.pertanyaan.info[1].replies, Reply{username: "sari", message: "balon ku ada 5", tipe: "PASIEN"})
+    PertanyaanPush(&db.forum.pertanyaan, Pertanyaan{pasien: *db.user.pasien, judul: "Bagaimana Cara Kerja Hati", topik: "Hati"})
+    ReplyPush(&db.forum.pertanyaan.info[1].replies, Reply{username: "sari", message: "Detoksifikasi: Hati bertanggung jawab untuk membersihkan darah dari zat-zat berbahaya, termasuk racun dan obat-obatan yang dipecah dan diubah menjadi bentuk yang lebih mudah diekskresikan oleh tubuh.", tipe: "PASIEN"})
 
     Logout()
 
@@ -501,10 +508,10 @@ Forum
                     reply.tipe = db.user.tipe
                     ReplyPush(&db.forum.pertanyaan.info[i-1].replies, reply)
                 } else {
-                    fmt.Print("[info]: Pertanyaan tidak ditemukan")
+                    fmt.Print("[info]: Pertanyaan tidak ditemukan\n")
                 }
             } else {
-                fmt.Print("[info]: Harap login terlebih dahulu")
+                fmt.Print("[info]: Harap login terlebih dahulu\n")
             }
         } else if pilihan == 4 {
             if loggedAsPasien || loggedAsDokter {
@@ -516,8 +523,11 @@ Forum
                     fmt.Printf("[%d]\n", found.info[i] + 1)
                     PertanyaanPrint(db.forum.pertanyaan.info[found.info[i]])
                 }
+                if found.n == 0 {
+                    fmt.Println("[info]: Topik tidak ditemukan")
+                }
             } else {
-                fmt.Print("[info]: Harap login terlebih dahulu")
+                fmt.Print("[info]: Harap login terlebih dahulu\n")
             }
         } else if pilihan == 5 {
             if loggedAsDokter {
@@ -574,7 +584,7 @@ Urut secara
                         fmt.Print("[info]: Pasien ditemukan ")
                         PasienPrint(db.pasien.info[idx])
                     } else {
-                        fmt.Print("[info]: Pasien tidak ditemukan")
+                        fmt.Print("[info]: Pasien tidak ditemukan\n")
                     }
                 }
             }
@@ -607,6 +617,7 @@ func Daftar() {
 
             PasienPush(&db.pasien, pasien)
             PasienSort(&db.pasien)
+            fmt.Println("[info]: Pengguna berhasil terdaftar")
         } else {
             fmt.Println("[info]: Pengguna dengan NO KTP terisu sudah terdaftar")
         }
